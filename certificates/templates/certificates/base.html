@@ -40,9 +40,11 @@
     {% block content %}{% endblock %}
   </main>
 
-  <footer class="wrap footer">
-    <strong>Registration Certificate Editor</strong>
-    <span>Certificates are rendered from the university&rsquo;s own scanned template.</span>
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <span>&copy; {% now "Y" %} Swami Vivekananda University. All rights reserved.</span>
+      <span>Version 2.0.0</span>
+    </div>
   </footer>
   {% block scripts %}{% endblock %}
 </body>
