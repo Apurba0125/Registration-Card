@@ -357,6 +357,17 @@ input[type="file"]:hover { background: var(--gold-soft); border-color: var(--gol
 .recent-links { display: flex; gap: .75rem; font-size: .85rem; }
 .download-pair { display: flex; gap: .5rem; flex-wrap: wrap; }
 
+/* Draws the eye to the workbook template, the first thing a bulk run needs. */
+.btn.blink {
+  border-color: var(--gold);
+  animation: blink-glow 1.6s ease-in-out infinite;
+}
+.btn.blink:hover, .btn.blink:focus-visible { animation-play-state: paused; }
+@keyframes blink-glow {
+  0%, 100% { background: var(--card); box-shadow: 0 0 0 0 rgba(217, 166, 46, 0); }
+  50%      { background: var(--gold-soft); box-shadow: 0 0 0 5px rgba(217, 166, 46, .35); }
+}
+
 .gallery {
   gap: 1.35rem;
   grid-template-columns: repeat(auto-fill, minmax(275px, 1fr));

@@ -72,7 +72,7 @@ the same signature into every row. It is stamped on every certificate in the
 run, and the batch records which signature was used.
 
 Download the ready-made spreadsheet from the **Bulk generation** page
-(*Excel template*) and type over it, or build one with these headings:
+(*Download template*, next to *Spreadsheet format*) and type over it, or build one with these headings:
 
 ```
 SL_NO | STUDENT_NAME | GUARDIAN_NAME | REGISTRATION_NUMBER | YEAR | PHOTO

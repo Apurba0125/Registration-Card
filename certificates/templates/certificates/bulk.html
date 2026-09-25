@@ -55,13 +55,15 @@
 
       <div class="actions">
         <button type="submit" class="btn primary">Generate all certificates</button>
-        <a class="btn ghost" href="{% url 'certificates:sample_excel' %}">Excel template</a>
       </div>
     </form>
   </section>
 
   <section class="panel">
-    <h2>Spreadsheet format</h2>
+    <div class="panel-head">
+      <h2>Spreadsheet format</h2>
+      <a class="btn ghost small blink" href="{% url 'certificates:sample_excel' %}" download>Download template</a>
+    </div>
     <p>The first row must be the headings below. Column order does not matter, and headings are
       matched ignoring case, spaces and underscores. The quickest start is to
       <a class="link" href="{% url 'certificates:sample_excel' %}">download the Excel template</a>
