@@ -1,0 +1,55 @@
+{% extends "certificates/base.html" %}
+
+{% block title %}{{ batch.name }} &middot; SVU{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <div>
+      <h1>{{ batch.name }}</h1>
+      <p class="lede">{{ batch.created_at|date:"d M Y, H:i" }}</p>
+    </div>
+    {% if batch.output_archive %}
+      <a class="btn primary" href="{% url 'certificates:batch_download' batch.pk %}">{{ batch.download_label }}</a>
+    {% endif %}
+  </div>
+
+  <div class="stats">
+    <div class="stat"><span class="stat-value">{{ batch.total_rows }}</span><span class="stat-label">rows read</span></div>
+    <div class="stat ok"><span class="stat-value">{{ batch.generated }}</span><span class="stat-label">generated</span></div>
+    <div class="stat {% if batch.failed %}bad{% endif %}"><span class="stat-value">{{ batch.failed }}</span><span class="stat-label">failed</span></div>
+  </div>
+
+  {% if batch.log_lines %}
+    <h3 class="section-title">Run report</h3>
+    <ul class="log">
+      {% for line in batch.log_lines %}<li>{{ line }}</li>{% endfor %}
+    </ul>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h2>Certificates in this batch</h2>
+  {% if certificates %}
+    <ul class="gallery">
+      {% for certificate in certificates %}
+        <li>
+          <a href="{{ certificate.image.url }}" target="_blank" rel="noopener">
+            <img src="{{ certificate.image.url }}" alt="{{ certificate.student_name }}">
+          </a>
+          <div class="gallery-meta">
+            <strong>{{ certificate.student_name }}</strong>
+            <small>{{ certificate.registration_number|default:"&mdash;" }}</small>
+            <span class="recent-links">
+              <a class="link" href="{% url 'certificates:certificate_download_as' certificate.pk 'pdf' %}">PDF</a>
+              <a class="link" href="{% url 'certificates:certificate_download' certificate.pk %}">JPG</a>
+            </span>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="empty">No certificates were generated in this batch.</p>
+  {% endif %}
+</section>
+{% endblock %}

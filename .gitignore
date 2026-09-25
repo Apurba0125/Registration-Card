@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+db.sqlite3
+media/
+staticfiles/
+
+# Generated from assets/source_template.jpg by "manage.py setup_certificates".
+assets/blank_template.png
+
+.DS_Store
+.idea/
+.vscode/

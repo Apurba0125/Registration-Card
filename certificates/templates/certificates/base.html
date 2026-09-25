@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SVU Registration Certificates{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <a class="brand" href="{% url 'certificates:editor' %}">
+        <img class="brand-mark" src="{% static 'img/svu-logo.png' %}" width="46" height="46"
+             alt="Swami Vivekananda University crest">
+        <span class="brand-text">
+          <strong>Swami Vivekananda University</strong>
+          <small>Excellence. Innovation. Entrepreneurship.</small>
+        </span>
+      </a>
+      <nav class="nav">
+        <a href="{% url 'certificates:editor' %}" class="{% if request.resolver_match.url_name == 'editor' %}active{% endif %}">Editor</a>
+        <a href="{% url 'certificates:bulk' %}" class="{% if request.resolver_match.url_name in 'bulk,batch_detail' %}active{% endif %}">Bulk generation</a>
+        <a href="{% url 'certificates:history' %}" class="{% if request.resolver_match.url_name == 'history' %}active{% endif %}">History</a>
+        <a href="{% url 'admin:index' %}">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="message {{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="wrap footer">
+    <strong>Registration Certificate Editor</strong>
+    <span>Certificates are rendered from the university&rsquo;s own scanned template.</span>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

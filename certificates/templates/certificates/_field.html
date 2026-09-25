@@ -1,0 +1,9 @@
+{# One labelled form control. Included by the editor and bulk forms. #}
+<div class="field{% if field.errors %} has-error{% endif %}">
+  <label for="{{ field.id_for_label }}">
+    {{ field.label }}{% if field.field.required %} <span class="req" title="Required">*</span>{% endif %}
+  </label>
+  {{ field }}
+  {% if field.help_text %}<small class="hint">{{ field.help_text }}</small>{% endif %}
+  {% for error in field.errors %}<small class="error">{{ error }}</small>{% endfor %}
+</div>

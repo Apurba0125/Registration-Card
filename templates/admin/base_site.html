@@ -1,0 +1,63 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="icon" type="image/png" href="{% static 'img/favicon.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
+  <style>
+    /* Re-point the admin's own colour variables at the university palette.
+       Only the accents are touched -- surfaces and text keep Django's values,
+       so the built-in dark theme still works. */
+    :root {
+      --primary: #14403c;
+      --secondary: #0e2e2c;
+      --accent: #d9a62e;
+      --primary-fg: #fff;
+
+      --header-bg: #0e2e2c;
+      --header-color: #fff;
+      --header-branding-color: #fff;
+      --header-link-color: #fff;
+
+      --breadcrumbs-bg: #14403c;
+      --breadcrumbs-fg: #cfe0dc;
+      --breadcrumbs-link-fg: #fff;
+
+      --link-fg: #14403c;
+      --link-hover-color: #0e2e2c;
+      --link-selected-fg: #0e2e2c;
+
+      --button-bg: #14403c;
+      --button-hover-bg: #0e2e2c;
+      --default-button-bg: #0e2e2c;
+      --default-button-hover-bg: #071c1a;
+
+      --object-tools-bg: #14403c;
+      --object-tools-hover-bg: #0e2e2c;
+
+      --selected-row: #faf2dd;
+    }
+    /* The gold hairline that runs under the masthead on the rest of the app. */
+    #header { border-bottom: 3px solid #d9a62e; }
+    #site-name a { display: inline-flex; align-items: center; gap: .6rem; }
+    #site-name img {
+      width: 34px; height: 34px;
+      padding: 3px; border-radius: 9px; background: #fff;
+    }
+  </style>
+{% endblock %}
+
+{% block branding %}
+  <h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+      <img src="{% static 'img/svu-logo.png' %}" alt="" width="34" height="34">
+      <span>{{ site_header|default:_('Django administration') }}</span>
+    </a>
+  </h1>
+  {% if user.is_anonymous %}{% include "admin/color_theme_toggle.html" %}{% endif %}
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

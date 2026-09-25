@@ -1,0 +1,65 @@
+{% extends "certificates/base.html" %}
+
+{% block title %}History &middot; SVU{% endblock %}
+
+{% block content %}
+<section class="panel">
+  <div class="panel-head">
+    <h1>Generated certificates</h1>
+    <form method="get" class="search">
+      <input type="search" name="q" value="{{ query }}" placeholder="Search name or registration no.">
+      <button class="btn ghost small" type="submit">Search</button>
+      {% if query %}<a class="link" href="{% url 'certificates:history' %}">Clear</a>{% endif %}
+    </form>
+  </div>
+
+  {% if certificates %}
+    <div class="table-scroll">
+      <table class="grid">
+        <thead>
+          <tr>
+            <th></th><th>Student</th><th>Guardian</th><th>Registration no.</th>
+            <th>SL. No.</th><th>Year</th><th>Batch</th><th>Created</th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for certificate in certificates %}
+            <tr>
+              <td class="thumb-cell">
+                <a href="{{ certificate.image.url }}" target="_blank" rel="noopener">
+                  <img class="thumb" src="{{ certificate.image.url }}" alt="{{ certificate.student_name }}">
+                </a>
+              </td>
+              <td>{{ certificate.student_name }}</td>
+              <td>{{ certificate.guardian_name|default:"&mdash;" }}</td>
+              <td>{{ certificate.registration_number|default:"&mdash;" }}</td>
+              <td>{{ certificate.sl_no|default:"&mdash;" }}</td>
+              <td>{{ certificate.year|default:"&mdash;" }}</td>
+              <td>
+                {% if certificate.batch %}
+                  <a class="link" href="{% url 'certificates:batch_detail' certificate.batch.pk %}">{{ certificate.batch.name }}</a>
+                {% else %}Single{% endif %}
+              </td>
+              <td>{{ certificate.created_at|date:"d M Y, H:i" }}</td>
+              <td class="row-actions">
+                <a class="link" href="{% url 'certificates:certificate_download_as' certificate.pk 'pdf' %}">PDF</a>
+                <a class="link" href="{% url 'certificates:certificate_download' certificate.pk %}">JPG</a>
+                <form method="post" action="{% url 'certificates:certificate_delete' certificate.pk %}"
+                      onsubmit="return confirm('Delete the certificate for {{ certificate.student_name|escapejs }}?');">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button class="link danger" type="submit">Delete</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty">
+      {% if query %}Nothing matched &ldquo;{{ query }}&rdquo;.{% else %}No certificates yet. Start in the <a href="{% url 'certificates:editor' %}">editor</a>.{% endif %}
+    </p>
+  {% endif %}
+</section>
+{% endblock %}

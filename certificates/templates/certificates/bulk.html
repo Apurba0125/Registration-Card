@@ -1,0 +1,150 @@
+{% extends "certificates/base.html" %}
+
+{% block title %}Bulk generation &middot; SVU{% endblock %}
+
+{% block content %}
+{% if issues %}
+  <section class="panel issues">
+    <h2>What to fix in your spreadsheet</h2>
+    <p class="lede">
+      Nothing was generated.
+      {% if error_count %}<strong>{{ error_count }} error{{ error_count|pluralize }}</strong>
+        must be fixed{% endif %}{% if error_count and warning_count %}, and{% endif %}
+      {% if warning_count %}{{ warning_count }} warning{{ warning_count|pluralize }}
+        {% if error_count %}are{% else %}is{% endif %} worth checking{% endif %}.
+      Each one below names the exact cell to edit &mdash; fix them, save the workbook,
+      and upload it again.
+    </p>
+    <ol class="issue-list">
+      {% for issue in issues %}
+        <li class="issue {{ issue.level }}">
+          <div class="issue-head">
+            <span class="issue-tag">{{ issue.level }}</span>
+            <span class="issue-where">{{ issue.location }}</span>
+          </div>
+          <p class="issue-problem">{{ issue.problem }}</p>
+          <p class="issue-fix"><strong>Fix:</strong> {{ issue.fix }}</p>
+        </li>
+      {% endfor %}
+    </ol>
+  </section>
+{% endif %}
+
+<div class="layout">
+  <section class="panel">
+    <h1>Bulk generation</h1>
+    <p class="lede">Upload one spreadsheet holding every student&rsquo;s details and their photo.
+      Each certificate is generated and bundled into a single ZIP to download.</p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <fieldset class="fieldset">
+        <legend>Uploads</legend>
+        {% include "certificates/_field.html" with field=form.excel_file %}
+        {% include "certificates/_field.html" with field=form.hod_signature %}
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Batch</legend>
+        {% include "certificates/_field.html" with field=form.batch_name %}
+        {% include "certificates/_field.html" with field=form.output_format %}
+        {% include "certificates/_field.html" with field=form.template %}
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Generate all certificates</button>
+        <a class="btn ghost" href="{% url 'certificates:sample_excel' %}">Excel template</a>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>Spreadsheet format</h2>
+    <p>The first row must be the headings below. Column order does not matter, and headings are
+      matched ignoring case, spaces and underscores. The quickest start is to
+      <a class="link" href="{% url 'certificates:sample_excel' %}">download the Excel template</a>
+      and type over it.</p>
+
+    <div class="table-scroll">
+      <table class="grid">
+        <thead>
+          <tr>{% for heading in headings %}<th>{{ heading }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+          {% for row in sample_rows %}
+            <tr>
+              {% for cell in row %}<td>{{ cell }}</td>{% endfor %}
+              <td class="photo-cell">photo embedded here</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="section-title">Adding the photos</h3>
+    <ol class="notes">
+      <li>Click the cell in the <strong>PHOTO</strong> column for that student.</li>
+      <li>Use <strong>Insert &rsaquo; Pictures &rsaquo; This Device</strong> and choose the
+        photograph.</li>
+      <li>Drag it so it sits on that student&rsquo;s row &mdash; the row it sits on is what
+        matches it to the student, so it need not be exactly inside the cell.</li>
+    </ol>
+
+    <ul class="notes">
+      <li><strong>Every column is required</strong>, and every student needs a photo.
+        <strong>SL_NO</strong> and <strong>REGISTRATION_NUMBER</strong> must each be unique
+        &mdash; no two students may share either.</li>
+      <li>Use the ordinary <strong>Place over Cells</strong> insert. Excel&rsquo;s newer
+        <strong>Place in Cell</strong> pictures are stored differently and cannot be read back
+        out &mdash; the app will tell you if it finds them.</li>
+      <li><strong>Any photo size or shape works</strong> &mdash; there is no passport-size
+        requirement. Whatever you insert is fitted to the certificate&rsquo;s photo box
+        ({{ photo_box_w }} &times; {{ photo_box_h }}) without being stretched.</li>
+      <li>If a photo is much smaller than the box it is enlarged and may print softer, and if it
+        is a very different shape some of it is trimmed to fill the box. Either way the
+        certificate is still made &mdash; you are just told what to expect. About
+        {{ recommended_photo.0 }} &times; {{ recommended_photo.1 }} prints crisply if you have
+        the choice.</li>
+      <li>A row with no photo is reported as an error, naming the cell to put it in.</li>
+      <li>The <strong>HOD signature</strong> is uploaded here, not in the spreadsheet &mdash;
+        one signature is stamped on every certificate in the batch. Any size works; a white
+        background is removed automatically, so a plain scan works.</li>
+      <li>Choose <strong>JPG or PDF</strong> above. PDF pages come out at the card&rsquo;s real
+        printed size (9 &times; 6 inches), so a printed certificate is actual size. You can also
+        get every certificate in <strong>one PDF</strong>, a page each, ready to print.</li>
+      <li>Anything that would stop a certificate being made is listed here on upload, with the
+        exact cell to edit.</li>
+      <li>Save the workbook as <code>.xlsx</code>. A <code>.csv</code> cannot carry photos,
+        so it can no longer be used.</li>
+    </ul>
+
+    {% if batches %}
+      <h3 class="section-title">Previous batches</h3>
+      <div class="table-scroll">
+      <table class="grid">
+        <thead><tr><th>Batch</th><th>Generated</th><th>Failed</th><th>When</th><th></th></tr></thead>
+        <tbody>
+          {% for batch in batches %}
+            <tr>
+              <td><a href="{% url 'certificates:batch_detail' batch.pk %}">{{ batch.name }}</a></td>
+              <td>{{ batch.generated }} / {{ batch.total_rows }}</td>
+              <td>{% if batch.failed %}<span class="pill warn">{{ batch.failed }}</span>{% else %}0{% endif %}</td>
+              <td>{{ batch.created_at|date:"d M Y, H:i" }}</td>
+              <td>
+                {% if batch.output_archive %}
+                  <a class="btn ghost small" href="{% url 'certificates:batch_download' batch.pk %}">
+                    {% if batch.is_single_pdf %}PDF{% else %}ZIP{% endif %}
+                  </a>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

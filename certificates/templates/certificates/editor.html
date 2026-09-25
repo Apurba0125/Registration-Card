@@ -1,0 +1,97 @@
+{% extends "certificates/base.html" %}
+
+{% block title %}Certificate editor &middot; SVU{% endblock %}
+
+{% block content %}
+<div class="layout">
+  <section class="panel">
+    <h1>Edit a certificate</h1>
+    <p class="lede">Fill in the student&rsquo;s details, attach a photo, and the certificate is
+      drawn onto the university template. The photo and the signature may be any size or
+      shape &mdash; each is fitted to its place on the card.</p>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <fieldset class="fieldset">
+        <legend>Printed details</legend>
+        {% include "certificates/_field.html" with field=form.student_name %}
+        {% include "certificates/_field.html" with field=form.guardian_name %}
+        {% include "certificates/_field.html" with field=form.registration_number %}
+        <div class="field-row">
+          {% include "certificates/_field.html" with field=form.year %}
+          {% include "certificates/_field.html" with field=form.sl_no %}
+        </div>
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Photo &amp; signature</legend>
+        {% include "certificates/_field.html" with field=form.photo %}
+        {% include "certificates/_field.html" with field=form.hod_signature %}
+      </fieldset>
+
+      <fieldset class="fieldset">
+        <legend>Template</legend>
+        {% include "certificates/_field.html" with field=form.template %}
+      </fieldset>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Generate certificate</button>
+        <button type="reset" class="btn ghost">Clear</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="panel preview-panel">
+    <div class="panel-head">
+      <h2>Preview</h2>
+      {% if certificate %}
+        <span class="download-pair">
+          <a class="btn primary small" href="{% url 'certificates:certificate_download_as' certificate.pk 'pdf' %}">Download PDF</a>
+          <a class="btn ghost small" href="{% url 'certificates:certificate_download' certificate.pk %}">Download JPG</a>
+        </span>
+      {% endif %}
+    </div>
+
+    {% if certificate %}
+      <div class="certificate-frame">
+        <a href="{{ certificate.image.url }}" target="_blank" rel="noopener">
+          <img class="certificate" src="{{ certificate.image.url }}" alt="Certificate for {{ certificate.student_name }}">
+        </a>
+      </div>
+      <dl class="meta">
+        <div><dt>Student</dt><dd>{{ certificate.student_name }}</dd></div>
+        {% if certificate.guardian_name %}<div><dt>Guardian</dt><dd>{{ certificate.guardian_name }}</dd></div>{% endif %}
+        {% if certificate.registration_number %}<div><dt>Registration no.</dt><dd>{{ certificate.registration_number }}</dd></div>{% endif %}
+        {% if certificate.sl_no %}<div><dt>SL. No.</dt><dd>{{ certificate.sl_no }}</dd></div>{% endif %}
+        {% if certificate.year %}<div><dt>Year</dt><dd>{{ certificate.year }}</dd></div>{% endif %}
+      </dl>
+    {% else %}
+      <div class="certificate-frame">
+        <img class="certificate faded" src="{{ template_obj.image.url }}" alt="Blank certificate template">
+      </div>
+      <p class="empty">The blank template is shown above. Fill in the form to see the finished
+        certificate here.</p>
+    {% endif %}
+
+    {% if recent %}
+      <h3 class="section-title">Recently generated</h3>
+      <ul class="recent">
+        {% for item in recent %}
+          <li>
+            <a href="{{ item.image.url }}" target="_blank" rel="noopener">
+              <img src="{{ item.image.url }}" alt="{{ item.student_name }}">
+            </a>
+            <span class="recent-name">{{ item.student_name }}</span>
+            <span class="recent-links">
+              <a class="link" href="{% url 'certificates:certificate_download_as' item.pk 'pdf' %}">PDF</a>
+              <a class="link" href="{% url 'certificates:certificate_download' item.pk %}">JPG</a>
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}
